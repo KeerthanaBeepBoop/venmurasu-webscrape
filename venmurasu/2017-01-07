@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+
+<html lang="ta">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width" name="viewport"/>
+<title>நூல் பன்னிரண்டு – கிராதம் – 80 | </title>
+<link href="http://gmpg.org/xfn/11" rel="profile"/>
+<link href="https://venmurasu.in/xmlrpc.php" rel="pingback"/>
+<!--[if lt IE 9]>
+		<script src="https://s2.wp.com/wp-content/themes/pub/suits/js/html5.js" type="text/javascript"></script>
+	<![endif]-->
+<!-- Async WordPress.com Remote Login -->
+<script id="wpcom_remote_login_js">
+var wpcom_remote_login_extra_auth = '';
+function wpcom_remote_login_remove_dom_node_id( element_id ) {
+	var dom_node = document.getElementById( element_id );
+	if ( dom_node ) { dom_node.remove(); }
+}
+function wpcom_remote_login_remove_dom_node_classes( class_name ) {
+	var dom_nodes = document.querySelectorAll( '.' + class_name );
+	for ( var i = 0; i < dom_nodes.length; i++ ) {
+		dom_nodes[i].remove();
+	}
+}
+function wpcom_remote_login_final_cleanup() {
+	wpcom_remote_login_remove_dom_node_classes( "wpcom_remote_login_msg" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_key" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_validate" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_js" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_request_access_iframe" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_request_access_styles" );
+}
+
+// Watch for messages back from the remote login
+window.addEventListener( "message", function( e ) {
+	if ( e.origin === "https://r-login.wordpress.com" ) {
+		var data = {};
+		try {
+			data = JSON.parse( e.data );
+		} catch( e ) {
+			wpcom_remote_login_final_cleanup();
+			return;
+		}
+
+		if ( data.msg === 'LOGIN' ) {
+			// Clean up the login check iframe
+			wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_key" );
+
+			var id_regex = new RegExp( /^[0-9]+$/ );
+			var token_regex = new RegExp( /^.*|.*|.*$/ );
+			if (
+				token_regex.test( data.token )
+				&& id_regex.test( data.wpcomid )
+			) {
+				// We have everything we need to ask for a login
+				var script = document.createElement( "script" );
+				script.setAttribute( "id", "wpcom_remote_login_validate" );
+				script.src = '/remote-login.php?wpcom_remote_login=validate'
+					+ '&wpcomid=' + data.wpcomid
+					+ '&token=' + encodeURIComponent( data.token )
+					+ '&host=' + window.location.protocol
+						+ '//' + window.location.hostname;
+				document.body.appendChild( script );
+			}
+
+			return;
+		}
+
+		// Safari ITP, not logged in, so redirect
+		if ( data.msg === 'LOGIN-REDIRECT' ) {
+			window.location = 'https://wordpress.com/log-in?redirect_to=' + window.location.href;
+			return;
+		}
+
+		// Safari ITP, storage access failed, remove the request
+		if ( data.msg === 'LOGIN-REMOVE' ) {
+			var css_zap = 'html { -webkit-transition: margin-top 1s; transition: margin-top 1s; } /* 9001 */ html { margin-top: 0 !important; } * html body { margin-top: 0 !important; } @media screen and ( max-width: 782px ) { html { margin-top: 0 !important; } * html body { margin-top: 0 !important; } }';
+			var style_zap = document.createElement( 'style' );
+			style_zap.type = 'text/css';
+			style_zap.appendChild( document.createTextNode( css_zap ) );
+			document.body.appendChild( style_zap );
+
+			var e = document.getElementById( 'wpcom_request_access_iframe' );
+			e.parentNode.removeChild( e );
+
+			document.cookie = 'wordpress_com_login_access=denied; path=/; max-age=31536000';
+
+			return;
+		}
+
+		// Safari ITP
+		if ( data.msg === 'REQUEST_ACCESS' ) {
+			console.log( 'request access: safari' );
+
+			// Check ITP iframe enable/disable knob
+			if ( wpcom_remote_login_extra_auth !== 'safari_itp_iframe' ) {
+				return;
+			}
+
+			// If we are in a "private window" there is no ITP.
+			var private_window = false;
+			try {
+				var opendb = window.openDatabase( null, null, null, null );
+			} catch( e ) {
+				private_window = true;
+			}
+
+			if ( private_window ) {
+				console.log( 'private window' );
+				return;
+			}
+
+			var iframe = document.createElement( 'iframe' );
+			iframe.id = 'wpcom_request_access_iframe';
+			iframe.setAttribute( 'scrolling', 'no' );
+			iframe.setAttribute( 'sandbox', 'allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-top-navigation-by-user-activation' );
+			iframe.src = 'https://r-login.wordpress.com/remote-login.php?wpcom_remote_login=request_access&origin=' + encodeURIComponent( data.origin ) + '&wpcomid=' + encodeURIComponent( data.wpcomid );
+
+			var css = 'html { -webkit-transition: margin-top 1s; transition: margin-top 1s; } /* 9001 */ html { margin-top: 46px !important; } * html body { margin-top: 46px !important; } @media screen and ( max-width: 660px ) { html { margin-top: 71px !important; } * html body { margin-top: 71px !important; } #wpcom_request_access_iframe { display: block; height: 71px !important; } } #wpcom_request_access_iframe { border: 0px; height: 46px; position: fixed; top: 0; left: 0; width: 100%; min-width: 100%; z-index: 99999; background: #23282d; } ';
+
+			var style = document.createElement( 'style' );
+			style.type = 'text/css';
+			style.id = 'wpcom_request_access_styles';
+			style.appendChild( document.createTextNode( css ) );
+			document.body.appendChild( style );
+
+			document.body.appendChild( iframe );
+		}
+
+		if ( data.msg === 'DONE' ) {
+			wpcom_remote_login_final_cleanup();
+		}
+	}
+}, false );
+
+// Inject the remote login iframe after the page has had a chance to load
+// more critical resources
+window.addEventListener( "DOMContentLoaded", function( e ) {
+	var iframe = document.createElement( "iframe" );
+	iframe.style.display = "none";
+	iframe.setAttribute( "scrolling", "no" );
+	iframe.setAttribute( "id", "wpcom_remote_login_key" );
+	iframe.src = "https://r-login.wordpress.com/remote-login.php"
+		+ "?wpcom_remote_login=key"
+		+ "&origin=aHR0cHM6Ly92ZW5tdXJhc3UuaW4%3D"
+		+ "&wpcomid=62179296"
+		+ "&time=1595060929";
+	document.body.appendChild( iframe );
+}, false );
+</script>
+<link href="//s2.wp.com" rel="dns-prefetch">
+<link href="//s1.wp.com" rel="dns-prefetch">
+<link href="//venmurasu.wordpress.com" rel="dns-prefetch"/>
+<link href="//s0.wp.com" rel="dns-prefetch"/>
+<link href="//fonts.googleapis.com" rel="dns-prefetch"/>
+<link href="https://venmurasu.in/feed/" rel="alternate" title=" » செய்தியோடை" type="application/rss+xml"/>
+<link href="https://venmurasu.in/comments/feed/" rel="alternate" title=" » பின்னூட்ட செய்தியோடை" type="application/rss+xml"/>
+<script type="text/javascript">
+		/* <![CDATA[ */
+		function addLoadEvent(func) {
+			var oldonload = window.onload;
+			if (typeof window.onload != 'function') {
+				window.onload = func;
+			} else {
+				window.onload = function () {
+					oldonload();
+					func();
+				}
+			}
+		}
+		/* ]]> */
+	</script>
+<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s0.wp.com\/wp-content\/mu-plugins\/wpcom-smileys\/twemoji\/2\/72x72\/","ext":".png","svgUrl":"https:\/\/s0.wp.com\/wp-content\/mu-plugins\/wpcom-smileys\/twemoji\/2\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/s2.wp.com\/wp-includes\/js\/wp-emoji-release.min.js?m=1582709031h&ver=5.4.2"}};
+			/*! This file is auto-generated */
+			!function(e,a,t){var r,n,o,i,p=a.createElement("canvas"),s=p.getContext&&p.getContext("2d");function c(e,t){var a=String.fromCharCode;s.clearRect(0,0,p.width,p.height),s.fillText(a.apply(this,e),0,0);var r=p.toDataURL();return s.clearRect(0,0,p.width,p.height),s.fillText(a.apply(this,t),0,0),r===p.toDataURL()}function l(e){if(!s||!s.fillText)return!1;switch(s.textBaseline="top",s.font="600 32px Arial",e){case"flag":return!c([127987,65039,8205,9895,65039],[127987,65039,8203,9895,65039])&&(!c([55356,56826,55356,56819],[55356,56826,8203,55356,56819])&&!c([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]));case"emoji":return!c([55357,56424,55356,57342,8205,55358,56605,8205,55357,56424,55356,57340],[55357,56424,55356,57342,8203,55358,56605,8203,55357,56424,55356,57340])}return!1}function d(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(i=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},o=0;o<i.length;o++)t.supports[i[o]]=l(i[o]),t.supports.everything=t.supports.everything&&t.supports[i[o]],"flag"!==i[o]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[i[o]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(r=t.source||{}).concatemoji?d(r.concatemoji):r.wpemoji&&r.twemoji&&(d(r.twemoji),d(r.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link href="https://s2.wp.com/_static/??-eJydkd1uwyAMhV9oxEm6TMnFtGcB4jK3kCBsVOXtR9IfVVvVTbs85nyHIxtOUdl5EpwEQlbRZ0cTwynaOSgO5HH5pirL/AKPMU9HZDigRG2PalM/7Fevy0UaTK68JIS+2lU1mEx+BOPnDTdJpwVYFo9/iNmou9/1MmdRLtH434ikhSbHv+D77L1iElQ40gpc1gFN1/dDV7cDxISBcrihzwPtfOnRVO26lJFYbkP1mL07wrrOMg9Ry+oIpZVGj6HYnmHnIxtTujKra2P5LOB2xI/w3nTDa922Tf12+AKWPtNm?cssminify=yes" id="all-css-0-1" media="all" rel="stylesheet" type="text/css"/>
+<style id="wp-block-library-inline-css">
+.has-text-align-justify {
+	text-align:justify;
+}
+</style>
+<style id="global-styles-inline-css">
+:root {
+	--wp--preset--color--black: #000000;
+	--wp--preset--color--cyan-bluish-gray: #abb8c3;
+	--wp--preset--color--light-green-cyan: #7bdcb5;
+	--wp--preset--color--luminous-vivid-amber: #fcb900;
+	--wp--preset--color--luminous-vivid-orange: #ff6900;
+	--wp--preset--color--pale-cyan-blue: #8ed1fc;
+	--wp--preset--color--pale-pink: #f78da7;
+	--wp--preset--color--vivid-cyan-blue: #0693e3;
+	--wp--preset--color--vivid-green-cyan: #00d084;
+	--wp--preset--color--vivid-purple: #9b51e0;
+	--wp--preset--color--vivid-red: #cf2e2e;
+	--wp--preset--color--white: #ffffff;
+	--wp--preset--font-size--small: 13;
+	--wp--preset--font-size--normal: 16;
+	--wp--preset--font-size--medium: 20;
+	--wp--preset--font-size--large: 36;
+	--wp--preset--font-size--huge: 48;
+	--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);
+	--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);
+	--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);
+	--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);
+	--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);
+	--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);
+	--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);
+	--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);
+	--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);
+	--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);
+	--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);
+	--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);
+}
+
+</style>
+<link crossorigin="anonymous" href="https://fonts.googleapis.com/css?family=Lato%3A100%2C300%2C400%26subset%3Dlatin%2Clatin-ext" id="suits-font-css" media="all" rel="stylesheet"/>
+<link href="https://s1.wp.com/_static/??-eJx9i0EOgyAQAD8krlibeGn6FiVbillYwi4x/X3xphdvM8kM7Nk4TopJQb8YUSDXFaQGFRD9EfZOpINTFqvJVH1IAh7ZELtFA6eLmA8todytBVdi39BDq056TO/4sk/7GMdhmqftD//cPGw=?cssminify=yes" id="all-css-4-1" media="all" rel="stylesheet" type="text/css"/>
+<link href="https://s2.wp.com/wp-content/mu-plugins/global-print/global-print.css?m=1465851035h&amp;cssminify=yes" id="print-css-5-1" media="print" rel="stylesheet" type="text/css"/>
+<link href="https://s0.wp.com/wp-content/mu-plugins/actionbar/actionbar.css?m=1560469195h&amp;cssminify=yes" id="all-css-6-1" media="all" rel="stylesheet" type="text/css"/>
+<style id="jetpack-global-styles-frontend-style-inline-css">
+:root { --font-headings: unset; --font-base: unset; --font-headings-default: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif; --font-base-default: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;}
+</style>
+<link href="https://s2.wp.com/_static/??-eJxti8sKgCAQAH8oW6IHdIi+xcR0Y3XFVfr96NAh6jQMzMCZlOFYbCwQqkpUHUaBxFLUThoziNcZo3vYGpEG/i9hg5oUseO3fKbibbACfgBHvGm6gzUs3Tj3UzcO/XRcZTE30g==?cssminify=yes" id="all-css-8-1" media="all" rel="stylesheet" type="text/css"/>
+<script src="https://s2.wp.com/_static/??-eJx9jMkKAjEQRH/ITCfByOQgfsssPaFDNrM4+PdGXA4ehIKCqlcFe2IUFtdWLGC7rg3z/W2DLQf4BzBPJk8VB0/hAy8xVAz1yfo4k0PWCubJ9KwfbfGXS64ZCgW25hwrVJHhSpWCYa8GhBpHrbjUkDJ6av47vRHu/e7iz0LpI5dS8JN9AG8fTCU=" type="text/javascript"></script>
+<link href="https://venmurasu.wordpress.com/xmlrpc.php?rsd" rel="EditURI" title="RSD" type="application/rsd+xml"/>
+<link href="https://s1.wp.com/wp-includes/wlwmanifest.xml" rel="wlwmanifest" type="application/wlwmanifest+xml"/>
+<link href="https://venmurasu.in/2017/01/06/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-79/" rel="prev" title="நூல் பன்னிரண்டு – கிராதம் – 79"/>
+<link href="https://venmurasu.in/2017/01/08/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-81/" rel="next" title="நூல் பன்னிரண்டு – கிராதம் – 81"/>
+<meta content="WordPress.com" name="generator">
+<link href="https://venmurasu.in/2017/01/07/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-80/" rel="canonical"/>
+<link href="https://wp.me/p4cTFS-1bh" rel="shortlink"/>
+<link href="https://public-api.wordpress.com/oembed/?format=json&amp;url=https%3A%2F%2Fvenmurasu.in%2F2017%2F01%2F07%2F%25e0%25ae%25a8%25e0%25af%2582%25e0%25ae%25b2%25e0%25af%258d-%25e0%25ae%25aa%25e0%25ae%25a9%25e0%25af%258d%25e0%25ae%25a9%25e0%25ae%25bf%25e0%25ae%25b0%25e0%25ae%25a3%25e0%25af%258d%25e0%25ae%259f%25e0%25af%2581-%25e0%25ae%2595%25e0%25ae%25bf%25e0%25ae%25b0%25e0%25ae%25be%25e0%25ae%25a4%25e0%25ae%25ae%25e0%25af%258d-80%2F&amp;for=wpcom-auto-discovery" rel="alternate" type="application/json+oembed"/><link href="https://public-api.wordpress.com/oembed/?format=xml&amp;url=https%3A%2F%2Fvenmurasu.in%2F2017%2F01%2F07%2F%25e0%25ae%25a8%25e0%25af%2582%25e0%25ae%25b2%25e0%25af%258d-%25e0%25ae%25aa%25e0%25ae%25a9%25e0%25af%258d%25e0%25ae%25a9%25e0%25ae%25bf%25e0%25ae%25b0%25e0%25ae%25a3%25e0%25af%258d%25e0%25ae%259f%25e0%25af%2581-%25e0%25ae%2595%25e0%25ae%25bf%25e0%25ae%25b0%25e0%25ae%25be%25e0%25ae%25a4%25e0%25ae%25ae%25e0%25af%258d-80%2F&amp;for=wpcom-auto-discovery" rel="alternate" type="application/xml+oembed"/>
+<!-- Jetpack Open Graph Tags -->
+<meta content="article" property="og:type">
+<meta content="நூல் பன்னிரண்டு – கிராதம் – 80" property="og:title"/>
+<meta content="https://venmurasu.in/2017/01/07/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-80/" property="og:url"/>
+<meta content="[ 33 ] காளி தான் சேர்த்துவைத்திருந்த கிழங்குகள் கொண்ட கூடையை எடுத்துக்கொண்டாள். அர்ஜுனனுக்கு இன்சுவைக் கிழங்குகளை அளித்தாள். அவன் அவற்றை உண்டதும் மலைத்தேன் குடுவையை அளித்தாள். சுனைநீருண்டதும் அவன் …" property="og:description"/>
+<meta content="2017-01-06T18:30:30+00:00" property="article:published_time"/>
+<meta content="2017-01-07T14:56:14+00:00" property="article:modified_time"/>
+<meta content="https://s0.wp.com/i/blank.jpg" property="og:image"/>
+<meta content="ta_IN" property="og:locale"/>
+<meta content="@wordpressdotcom" name="twitter:site"/>
+<meta content="நூல் பன்னிரண்டு – கிராதம் – 80" name="twitter:text:title"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="https://www.facebook.com/WordPresscom" property="article:publisher"/>
+<!-- End Jetpack Open Graph Tags -->
+<link href="https://s1.wp.com/i/favicon.ico" rel="shortcut icon" sizes="16x16 24x24 32x32 48x48" type="image/x-icon"/>
+<link href="https://s1.wp.com/i/favicon.ico" rel="icon" sizes="16x16 24x24 32x32 48x48" type="image/x-icon"/>
+<link href="https://s2.wp.com/i/webclip.png" rel="apple-touch-icon"/>
+<link href="https://venmurasu.in/?openidserver=1" rel="openid.server"/>
+<link href="https://venmurasu.in/" rel="openid.delegate"/>
+<link href="https://venmurasu.in/osd.xml" rel="search" title="" type="application/opensearchdescription+xml"/>
+<link href="https://s1.wp.com/opensearch.xml" rel="search" title="WordPress.com" type="application/opensearchdescription+xml"/>
+<meta content="WordPress.com" name="application-name"/><meta content="width=device-width;height=device-height" name="msapplication-window"/><meta content="name=சந்தாசெய்;action-uri=https://venmurasu.in/feed/;icon-uri=https://s1.wp.com/i/favicon.ico" name="msapplication-task"/><meta content="name=Sign up for a free blog;action-uri=http://wordpress.com/signup/;icon-uri=https://s1.wp.com/i/favicon.ico" name="msapplication-task"/><meta content="name=WordPress.com Support;action-uri=http://support.wordpress.com/;icon-uri=https://s1.wp.com/i/favicon.ico" name="msapplication-task"/><meta content="name=WordPress.com Forums;action-uri=http://forums.wordpress.com/;icon-uri=https://s1.wp.com/i/favicon.ico" name="msapplication-task"/><meta content="[ 33 ] காளி தான் சேர்த்துவைத்திருந்த கிழங்குகள் கொண்ட கூடையை எடுத்துக்கொண்டாள். அர்ஜுனனுக்கு இன்சுவைக் கிழங்குகளை அளித்தாள். அவன் அவற்றை உண்டதும் மலைத்தேன் குடுவையை அளித்தாள். சுனைநீருண்டதும் அவன் உடலாற்றல் மீண்டான். அவன் உடலில் இருந்த அம்புகளை அகற்றி பச்சிலை சாறூற்றினாள். அனலென எரிந்து குளிர்ந்தணைந்தபோது புண் மூடிக்கொண்டுவிட்டதை அவன் அறிந்தான். நடந்தபோது வலியிருக்கவில்லை. வெந்நீர் ஓடிய சிற்றோடைகளையும் விழுந்து கிடந்த பெருமரங்களையும் கடந்து அவர்கள் சென்றனர். அவர்களுடன் செல்கையில் அந்தச் சிறுகாடு அவன் அப்போதுவரை…" name="description"/>
+<style id="suits-header-css" type="text/css">
+			.site-header {
+			background: #000 url(https://venmurasu.files.wordpress.com/2014/01/cropped-cropped-venmurasu_header_mani_0013.jpg) no-repeat scroll top;
+		}
+		</style>
+<link href="https://venmurasu.in/2017/01/07/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-80/amp/" rel="amphtml"/></meta></meta></link></link></head>
+<body class="post-template-default single single-post postid-4543 single-format-standard custom-background customizer-styles-applied no-avatars no-footer-sidebar highlander-enabled highlander-light">
+<div class="hfeed site" id="page">
+<header class="site-header" id="masthead" role="banner">
+<a class="home-link" href="https://venmurasu.in/" rel="home" title="">
+<h1 class="site-title"></h1>
+<h2 class="site-description"></h2>
+</a><!-- #navbar .header-navigation -->
+<div class="header-navigation" id="navbar">
+<nav class="navigation main-navigation" id="site-navigation" role="navigation">
+<h3 class="menu-toggle">பட்டி</h3>
+<div class="menu-menu-1-container"><ul class="nav-menu" id="menu-menu-1"><li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-12" id="menu-item-12"><a href="http://venmurasu.in" title="முகப்பு">முகப்பு</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-188" id="menu-item-188"><a href="https://venmurasu.in/%e0%ae%b5%e0%af%86%e0%ae%a3%e0%af%8d%e0%ae%ae%e0%af%81%e0%ae%b0%e0%ae%9a%e0%af%81-%e0%ae%aa%e0%ae%b1%e0%af%8d%e0%ae%b1%e0%ae%bf/">வெண்முரசு பற்றி</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-187" id="menu-item-187"><a href="https://venmurasu.in/%e0%ae%b5%e0%ae%be%e0%ae%9a%e0%ae%bf%e0%ae%aa%e0%af%8d%e0%ae%aa%e0%ae%bf%e0%ae%a9%e0%af%8d-%e0%ae%b5%e0%ae%be%e0%ae%9a%e0%ae%b2%e0%ae%bf%e0%ae%b2%e0%af%8d/">வாசிப்பின் வாசலில்…</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-204" id="menu-item-204"><a href="https://venmurasu.in/%e0%ae%86%e0%ae%9a%e0%ae%bf%e0%ae%b0%e0%ae%bf%e0%ae%af%e0%ae%b0%e0%af%8d-%e0%ae%85%e0%ae%b1%e0%ae%bf%e0%ae%ae%e0%af%81%e0%ae%95%e0%ae%ae%e0%af%8d/">ஆசிரியர் அறிமுகம்</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-367" id="menu-item-367"><a href="https://venmurasu.in/%e0%ae%b5%e0%af%86%e0%ae%a3%e0%af%8d%e0%ae%ae%e0%af%81%e0%ae%b0%e0%ae%9a%e0%af%88-%e0%ae%86%e0%ae%b0%e0%ae%ae%e0%af%8d%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0/">ஆரம்பத்திலிருந்து வாசிக்க</a></li>
+</ul></div> <form action="https://venmurasu.in/" class="search-form" method="get" role="search">
+<label>
+<span class="screen-reader-text">இதற்காகத் தேடு:</span>
+<input class="search-field" name="s" placeholder="தேடல் …" type="search" value=""/>
+</label>
+<input class="search-submit" type="submit" value="தேடு"/>
+</form> </nav><!-- #site-navigation .navigation .main-navigation -->
+</div><!-- #navbar .header-navigation -->
+</header><!-- #masthead .site-header -->
+<div class="site-main" id="main">
+<div class="content-area" id="primary">
+<div class="site-content" id="content" role="main">
+<article class="post-4543 post type-post status-publish format-standard hentry category-543477511" id="post-4543">
+<header class="entry-header">
+<h1 class="entry-title">நூல் பன்னிரண்டு – கிராதம் – 80</h1>
+</header><!-- .entry-header -->
+<div class="entry-content">
+<p style="text-align:center;"><strong>[ 33 ]</strong></p>
+<p style="text-align:justify;">காளி தான் சேர்த்துவைத்திருந்த கிழங்குகள் கொண்ட கூடையை எடுத்துக்கொண்டாள். அர்ஜுனனுக்கு இன்சுவைக் கிழங்குகளை அளித்தாள். அவன் அவற்றை உண்டதும் மலைத்தேன் குடுவையை அளித்தாள். சுனைநீருண்டதும் அவன் உடலாற்றல் மீண்டான். அவன் உடலில் இருந்த அம்புகளை அகற்றி பச்சிலை சாறூற்றினாள். அனலென எரிந்து குளிர்ந்தணைந்தபோது புண் மூடிக்கொண்டுவிட்டதை அவன் அறிந்தான். நடந்தபோது வலியிருக்கவில்லை. வெந்நீர் ஓடிய சிற்றோடைகளையும் விழுந்து கிடந்த பெருமரங்களையும் கடந்து அவர்கள் சென்றனர்.</p>
+<p style="text-align:justify;">அவர்களுடன் செல்கையில் அந்தச் சிறுகாடு அவன் அப்போதுவரை அறியாத முகங்களை காட்டத்தொடங்கியது. மலைகளின் இடுக்கு ஒன்றை செறிந்த மரங்கள் மூடியிருந்தன. அதனூடாகச் சென்றபோது அந்த மறைவாயிலின் இரு பக்கங்களிலும் திமில்பெருத்து திமிரெழுந்த நோக்குடன் நின்றிருந்த காளைவடிவங்கள் செதுக்கப்பட்டிருப்பதை அர்ஜுனன் கண்டான். “அவை எங்கள் குலக்குறிகள். இவற்றுக்கு அப்பால் எங்கள் வாழ்நிலம்” என்று பன்றியை தோளில் சுமந்துகொண்டு வந்த மூத்த மைந்தன் சொன்னான்.</p>
+<p style="text-align:justify;">“இங்கே காவல் என்று ஏதுமில்லையே?” என்றான் அர்ஜுனன். “காவலா? எதற்கு?” என்று காளி கேட்டாள். “இதற்குள் வரும் விலங்குகள் அனைத்தும் எங்கள் சொல்கேட்பவைதான்.” அர்ஜுனன் “எதிரிகள் வரக்கூடுமே?” என்றான். “எதிரிகள் என்றால்?” என்றான் மூத்த மைந்தன். அர்ஜுனன் “உங்களை தாக்குபவர்கள். வெல்பவர்கள். அடிமைப்படுத்தி திறைகொள்பவர்கள். கொள்ளையடித்துச் செல்பவர்கள்” என்றான். காளன் ஒரு கையால் தொடையை அறைந்து வெடித்துச்சிரிக்க காளி சினத்துடன் திரும்பி “அதென்ன எப்போதும் ஒரு மூடச்சிரிப்பு? செவி ரீங்கரிக்கிறது” என்றாள். காளன் சற்று குறுகி சிறுவன்போல “இவன் காலால் என் மார்பை வருடி கூச்சமளித்தான். அதனால்தான்” என்றான்.</p>
+<p style="text-align:justify;">காளி அர்ஜுனனிடம் “நாங்கள் இங்கிருப்பதை எவரும் அறியமாட்டார்கள். இந்த எல்லைக்கு அப்பால் சென்று பிறவுலகை அறிந்து வந்தவர்களே நானும் இவரும் மட்டும்தான். பிறருக்கு புறமென ஒன்று உண்டென்றே தெரியாது” என்றாள். “புறவுலகுக்கு நீங்கள் ஏன் சென்றீர்கள்?” என்றான் அர்ஜுனன். காளன் “எல்லா வகையான காதல்களையும் செய்து பார்ப்பதற்காகத்தான்” என்றான். “அய்யோ” என்றபடி காளி அவனை அறைந்தாள். அவன் விலகிக்கொண்டு உரக்க நகைத்தபடி “ஹை ஹை ஹை” என ஓசையிட்டு நடனமிட்டான். அவள் அவனை அடிக்கச்செல்ல அவன் நடனமிட்டபடி விலகினான். அவன்மேல் அமர்ந்த இளையவன் கைகளை வீசி எம்பி குதித்து பால்பற்கள் தெரிய சிரித்தான்.</p>
+<p style="text-align:justify;">மூத்தவன் அர்ஜுனனிடம் “நன்றாக ஆடுவார்… உள்ளே போனதுமே சிவப்புகை இழுப்பார். அதன்பின் இரவெல்லாம் ஆட்டம்தான்” என்றான். அர்ஜுனன் புன்னகையுடன் அவர்களைப் பார்த்தான். காளி மூச்சிரைக்க “உள்ளே வருக… பார்க்கிறேன்” என்றாள். மூத்தவன் “சில தருணங்களில் நானும் ஆடுவேன். எனக்கு களிமயக்கு எழவேண்டும்” என்றான். “சிவப்புகை எடுப்பாயா?” என்றான் அர்ஜுனன். “இல்லை, எனக்கு வயிறு முழுமையாக நிறைந்தாலே களியெழுந்துவிடும்” என்றான் மூத்தவன்.</p>
+<p style="text-align:justify;">அர்ஜுனன் சட்டென்று நின்று “ஆ!” என்றான். “என்ன?” என்று அவள் கேட்டாள். “நாகம் கொத்திவிட்டதா? அஞ்சாதே, எங்களிடம் நஞ்சுநீக்கும் பச்சிலைகள் பல உள்ளன.” அர்ஜுனன் “இல்லை அன்னையே, நீங்கள் அஸ்தினபுரிக்கு வந்திருந்தீர்களா?” என்றான். “நாங்கள் மண்ணிலுள்ள அனைத்து இடங்களுக்கும் சென்றோம்” என்றான் காளன். “ஆமாம், மண்முழுக்கச் செல்வது… அறிவில்லாமல் எதையாவது பேசுவது. கேட்டால் ஒரு கிறுக்குச் சிரிப்பு” என நொடித்தபின் “ஏன் கேட்கிறாய், மைந்தா?” என்றாள்.</p>
+<p style="text-align:justify;">“நீங்களெல்லாம் பேசுவது அஸ்தினபுரியின் தனிச்செம்மொழியை… அந்த உச்சரிப்புகூட அப்படியே அஸ்தினபுரியிலுள்ளது” என்றான். அவள் “அப்படியா?” என்றாள். “ஆம், மலைநோக்கி வருந்தோறும் மொழியில் பீதர்மொழியின் ங ஒலியிருக்கும். மேற்குநோக்கி சென்றால் யவனர்களின் ழ ஒலியிருக்கும். தெற்கே சென்றால் தென்மொழியின் குறுமுழவோசை கலக்கும்” என்றான் அர்ஜுனன். “அஸ்தினபுரியின் மொழி கங்கைக்கரை ஓசைகொண்டது. வங்கம் முதல் பாஞ்சாலம் வரை புழங்கும் இம்மொழியில் யாழின் ஓசை கலந்திருக்கும்.”</p>
+<p style="text-align:justify;">“நாங்கள் இந்த மொழியை உன் உள்ளத்திலிருந்தே எடுத்துக்கொள்கிறோம்” என்றான் காளன். “உளம்புகு கலையா? நான் அதை கற்கமுடியுமா?” என்றான் அர்ஜுனன். “உளமழியும் கலை என்று சொல்லலாம். கற்பதற்கு உளமில்லாதாகும்போது வந்தடையும் கலை அது” என்று சொல்லி காளன் கண்சிமிட்டினான். “இவர் பேசுவதை புரிந்துகொள்ள முயலாதே. அது இவருக்கே தெரியாது. நீ உனக்கு வேண்டியதை மட்டும் கற்றுக்கொள்” என்றாள் காளி. “மறந்தும் இவரிடமிருந்து சிவப்புகையை பெற்றுக்கொள்ளாதே. பெற்ற தாய் மைந்தனுக்கு ஊட்டுவதுபோல கொஞ்சிக்கொஞ்சி நீட்டுவார். வாங்கி இழுக்கத் தொடங்கினால் அதன்பின் உனக்குள் ஒரு சொல்லும் இருக்காது. உறவும் கடமையும் மறக்கும். வெறும் முகில் மட்டுமே இருக்கும்.”</p>
+<p style="text-align:justify;">அர்ஜுனன் “இல்லை, அன்னையே” என்றான். அவனை நோக்கி காளன் மீண்டும் கண்சிமிட்டி புன்னகை செய்தான். மூத்தவன் மிக எளிதாக அந்தப் பெரிய பன்றியை தூக்கிவருவதை அர்ஜுனன் கண்டான். அவனுக்கு ஐந்து வயதுகூட இருக்காதென்று முகம் காட்டியது. ஆனால் அர்ஜுனனின் தோள் அளவுக்கு உயரமிருந்தான். “உன் பெயர் என்ன?” என்றான். “கொம்பன்” என்றான் அவன். அவ்வொலி அர்ஜுனனை சற்று திகைக்கச் செய்தது. “அதன் பொருள் என்ன?” என்றான். “களிற்றுயானை. பெருங்கொம்பு கொண்டது” என்றான் கொம்பன். “என் இளையோன் பெயர் குமரன்… சிறுவன் என்று அதற்குப் பொருள். தந்தை அவனை அழகன் என்று அழைப்பார்.”</p>
+<p style="text-align:justify;">அஞ்சிய முட்பன்றியென அர்ஜுனனுக்குள் அனைத்துப் புலன்களும் முள்கொண்டன. அவன் நின்றுவிட்டான். “ஏன்?” என்றான் கொம்பன். “இந்தப் பெயர்கள் தென்மொழியில் அமைந்தவை…” என்றான். “தென்மொழியா?” என்றபடி கொம்பன் அவனை ஏறிட்டு நோக்கினான். “பாரதவர்ஷத்தின் தென்முனம்பில் பேசப்படும் மொழி அது. தென்னவர் தொன்மையான கடலோடிகள். முத்துக்களை பணமாகக் கொண்டு உலகுடன் வணிகம் செய்பவர். இசை தேர்ந்தவர்கள். ஏழுவகை யாழ்கொண்டவர்கள். அவர்களின் மொழியிலமைந்த பெயர்கள் இவை.”</p>
+<p style="text-align:justify;">அர்ஜுனன் அந்தப் பெயர்களை மீண்டும் சொல்லி “கொம்பன் என்ற பெயரிலேயே தென்னகப்பாணன் ஒருவன் அஸ்தினபுரிக்கு வந்திருக்கிறான். அவன் முகத்தைக்கூட நினைவுறுகிறேன்” என்றான். கொம்பன் “அவன் என்னைப்போலவே சிறந்த வீரனா?” என்றான். “அவன் பாணன்” என்றான் அர்ஜுனன். “அவனால் முழுப்பன்றியை உண்ணமுடியுமா?” என்றான் கொம்பன். அர்ஜுனன் சிரித்துவிட்டான்.</p>
+<p style="text-align:justify;">அப்பால் காளியும் காளனும் தங்களுக்குள் ஏதோ பேசியபடி வந்தனர். தலைக்குமேல் குமரன் விழுந்து துயின்றுகொண்டிருந்தான். “அவன் மேலே ஏறினாலே துயின்றுவிடுவான். என்னை அவர் அப்படி ஏற்றிக்கொள்வதில்லை” என்றான் கொம்பன். “நான் எடை மிகுதி. மேலும் செல்லும்வழியெல்லாம் கனிகொய்து உண்பதனால் அவரால் நடக்கவும் முடியாது.” அர்ஜுனன் “என்ன பேசிக்கொள்கிறார்கள்?” என்றான். “அவர்கள் அப்படித்தான் பேசிக்கொண்டே இருப்பார்கள். சண்டைபோடுவதற்காக பேசுவார்கள். மீண்டும் பேசுவதற்காக சண்டைபோடுவார்கள்” என்றான் கொம்பன்.</p>
+<p style="text-align:justify;">அவர்கள் சென்றடைந்த நிலம் தென்னகம்போலவே இருந்தது. ஓங்கிய தென்னைமரங்கள் உடல்வளைத்து நடமிடும் பாணர்களும் விறலியரும்போல இலைவிரித்து நின்றிருந்தன. கொடிமரங்களின் செறிவென கமுகுகள், கிழிந்த பேரிலையை யானைச்செவிபோல அசைத்தபடி வாழைகள், கருங்கால்வேங்கைகள், விழுதுபரப்பிய ஆல்கள், இலைச்சிமிட்டல்கள் அடர்ந்த அரசுகள், பொன்னணிந்த கொன்றைகள், இலுப்பைகள், இலை சிலிர்த்த வேம்பு, புதுத்தளிர்விட்ட புங்கம். இளவேனில் எழுந்திருந்தது அங்கு. பறவைகளின் ஓசை தலைக்குமேல் பெருகிநிறைந்திருந்தது. இலைகள்மேல் காற்றோடும் ஓசை அருவியை அணுகுவதுபோல எண்ணச்செய்தது.</p>
+<p style="text-align:justify;">விழிவிரிய சுற்றிலும் நோக்கியபடி “தென்னகநிலம்!” என்றான் அர்ஜுனன். காளன் அதைக் கேட்டு அருகணைந்து “ஆம், தெற்கே இதைப்போலொரு நிலமிருப்பதாக சொல்லப்பட்டுள்ளது எங்கள் பாடல்களில்” என்றான். பசும்பரப்பின் ஊடாகச்சென்ற கால்தடப் பாதையில் அவர்கள் சென்றனர். பசுமைக்குள் தெரிந்த மலைப்பாறைகள் அனைத்துமே முகங்களாக செதுக்கப்பட்டிருந்தன. ஊழ்கத்தில் மூழ்கிய முகங்கள் சில. விழி உறுத்து கேளாச்சொல்லொன்றைச் சொல்லி அமைந்தவை. கனிந்து புன்னகைக்கும் அன்னையர் முகங்கள். தந்தையருக்குக் கீழே எருதுகளும் யானைகளும் செதுக்கப்பட்டிருந்தன. அன்னையருக்கு கலைமான்களும் சிம்மங்களும். அவர்கள் அனைவருமே சடைத்திரிக் கூந்தல் கொண்டிருந்தனர். அவை வழிந்து விழுதுகளென நிலம்தொட்டு விரிந்திருந்தன.</p>
+<p style="text-align:justify;">“அவர் எங்கள் குலமூதாதையர்” என்றான் காளன். “உங்கள் குலப்பெயர் என்ன?” என்று அர்ஜுனன் கேட்டான். “காலர்” என்று காளன் சொன்னான். “கால் எனில் காற்று. அலையலையென எழுந்துவரும் முடிவிலா காற்றென்றே காலம் எங்கள் மூதாதையரால் அறியப்பட்டது. பருவங்களைச் சமைப்பது அதுவே. மலர்களை முகிழவிழச் செய்கிறது. மகரந்தங்களால் சூலுறச்செய்கிறது. காயும் கனியும் ஆக்குகிறது. விலங்குகளிலும் பறவைகளிலும் காமத்தை எழுப்புகிறது. மழையையும் பனியையும் சுமந்து வருகிறது. வெயிலை குளிரவைத்து அளிக்கிறது.”</p>
+<p style="text-align:justify;">“காற்றே மூச்சு என உடலில் ஓடுகிறது. காலமென்றாகி நெஞ்சில் துடிக்கிறது. எண்ணங்களாகி அகத்தை நிறைக்கிறது. காற்று அகலும்போது அன்னம் மீண்டும் அன்னமென்றாகிறது” என்று காளன் தொடர்ந்தான். “அன்ன எனில் போல என்று பொருள். அன்னதே அன்னமென்றாகியது. பொருளை பிறிதொன்றுடன் ஒப்பிடாமல் அறியமுடியாது. ஒப்பிடப்பட்ட முதற்பொருளின் முன்பாக அனைத்துடனும் ஒப்பிடப்படும் முழுப்பொருள் நின்றிருந்தது” என்றான். “அது அன்னத்தைப் பொருளென்றாக்குகிறது. சொல்லில் பொருளென குடிகொள்கிறது.”</p>
+<p style="text-align:justify;">சிவந்தவரிகள் ஓடிய அவன் விழிகள் சிப்பியின் உட்தசைபோலிருந்தன. கருவிழிகளுக்கு நடுவே நோக்கிலாதவைபோல வெறித்தன இரு உள்விழிகள். “குடி என்றால் வாழ்வது. கூடுதல் என்றால் இணைவது, மிகுவது. கூடுவதே குடி. குடியை கூடு என்றும் நாங்கள் சொல்வதுண்டு. வழிதலென்பது வழியென்றானது. வழியே வாழ்வென்றானது. வாழ்வே வழுத்துதல் என்க! வழுவும் அதுவே.” அருகே நின்ற பேரிலைக்கதலியை கையால் தட்டி “வாழ்வதென்பதனால் இது வாழை. குளிர்ந்தது, கனிவது, வேர்முளைப்பது, முழுமைகொண்டழிவது” என்றான்.</p>
+<p style="text-align:justify;">“தென்மொழியேதான்… ஐயமே இல்லை. அத்தனை சொற்களும் அம்மொழியே” என்றான் அர்ஜுனன் வியப்புடன். “நன்று, அதை நானறியேன். அவர்கள் இங்கிருந்து மொழியை கொண்டுசென்றிருக்கக்கூடும். இதுவே ஊற்றுமுகம். இங்கு எழுந்த அனலே எங்கும் பற்றிக்கொண்டது” என்று காளன் சொன்னான். “முழுமுதற் சொல்லை பெற்றுக்கொண்ட மூத்தகுடியென்பதனால் நாங்கள் இங்கு மலைசூழ்ந்து காக்க அதில் திளைத்துவாழ்கிறோம்.” அவன் தலையைத் தொட்டு “வருக!” என அவன் முன்சென்றான்.</p>
+<p style="text-align:justify;">“அந்த முதற்சொல் வாட்கருக்கு கொண்ட வைரம். அருநஞ்சும் ஆராவமுதும் ஒன்றென்றானது. அதை எங்களுக்கு உகந்த முறையில் மெருக்கிக்கொண்டோம். எங்கள் தலைமுறைச்சரடின் காலப்பெருக்கில் உருண்டு உருண்டு மொழுத்தமையால் அதை மொழி என்கிறோம்” என்றான் காளன். “எங்கள் மொழியை அறிக! எங்கள் தொல்மூதாதையர் கண்ட முழுமுதன்மை ஆயிரம் நாவுகளில் அமைந்ததே எங்கள் மொழி. சொல்தொட்டு பொருள்பெற்று பின்னகர்ந்து சென்றமைக! அதுவே இங்குள்ள ஊழ்கம்.”</p>
+<p style="text-align:justify;">அவன் அர்ஜுனனின் தோளில் தன் வேங்கைமரக்கிளைபோன்ற பெருங்கையை வைத்தான். “அந்த முதற்சொல்லே பாசுபதம் என சொல்லப்படுகிறது.” அர்ஜுனன் மின்தொட்ட மரம் என சுடர்ந்து நின்றான். பின்னர் மெல்ல எரிந்தணைந்தான். நீள்மூச்சுடன் “ஆம், அதன்பொருட்டே வந்தேன்” என்றான்.</p>
+<p style="text-align:justify;">அவர்களை நோக்கி அங்குள்ள சோலைக்குள் இருந்து இளையோர் கூச்சலிட்டபடி ஓடிவந்தனர். கரிய முகத்தின் வெண்பல்நகைகளும் இடையணிந்த வெண்கல்நகைகளும் மட்டும் முந்தித்தெரிவதுபோலத் தோன்றியது. அவர்களின் குரல்கேட்டு தந்தையின் தோளிலிருந்த இளையவன் எழுந்து கூச்சலிட்டபடி எம்பிக்குதித்தான். “இறக்கு இறக்கு” என்று கூவினான். அவனை இறக்கிவிட்டதும் கைவிரித்துக்கொண்டு ஓடி அவர்களுடன் இணைந்துகொண்டான். அவர்கள் அவனிடம் பேசியபடியே உள்ளே ஓடினர்.</p>
+<p style="text-align:justify;">உள்ளிருந்து கல்நகைகளும் மான்தோல் ஆடையும் அணிந்த கரிய பெண்கள் இலைப்பசுமைக்குள் இருந்து தோன்றினர். அர்ஜுனனை வியப்புடன் நோக்கி “மீண்டும் வந்திருக்கிறாரா?” என்றாள் ஒரு முதுமகள். “அவர் வேறு ஒருவர். இவர் அவருடைய நண்பர்” என்றான் காளன். “யார்?” என்று அர்ஜுனன் கேட்டான். உடனே பீலிமுடியன் என காளி சொன்னது நினைவிலெழுந்தது. “அவரா? இங்கு வந்துள்ளாரா?” என்றான். “ஆம், அவனுடைய முதிரா இளமையில்… உன்னுடன் என நான் அவனுடன் போரிட்டேன்” என்றான் காளன்.</p>
+<p style="text-align:justify;">அர்ஜுனன் “அதன்பின்?” என்றான். “அவன் ஆழியைப் பற்றி இங்கே கொண்டுவந்துவிட்டேன். என் பின்னால் அவனே வந்தான். இங்கு சிலநாட்கள் தங்கிச்சென்றான். அதன்பின் இங்கு வருபவன் நீ மட்டுமே” என்றான் காளன். மேலும் மேலும் பெண்கள் வந்து அவர்களைச் சூழ்ந்தனர். அனைவரும் அர்ஜுனனை ஆர்வத்துடன் நோக்கி உடன் நடந்தனர். அவன் விழி அவர்களை சந்தித்ததும் புன்னகைத்தனர். வெண்பரல்நிரை கரியநீரிலெழுந்ததுபோன்ற சிரிப்புகள். நீர்த்தண்மை நிறைந்த விழிகள்.</p>
+<p style="text-align:justify;">“முன்பு எவர் வந்திருக்கிறார்கள்?” என்றான் அர்ஜுனன். “குறுமுனிவன் ஒருவன் வந்தான். என் முழங்காலளவே உயரமானவன். பெருவயிறன். தாள்தோய்ச் சடையன்” என்றான் காளன். “அகத்தியர்” என்றான் அர்ஜுனன். “இப்போது தெரிகிறது, தென்மொழி இம்மொழிபோன்று எழுந்தது எவ்வாறென்று” என்றான். வியப்புடன் தலையை அசைத்தபடி “இங்கிருந்து சென்ற அனலா?” என தனக்குள் சொல்லிக்கொண்டான்.</p>
+<p style="text-align:center;"><strong>[ 34 ]</strong></p>
+<p style="text-align:justify;">அந்த மலையுச்சித் தாழ்வரையின் பெயர் கைலை. அதன் நடுவே விண்முட்ட எழுந்து நின்ற களிறுவடிவ மலையே கைமா என்றழைக்கப்பட்டது. கைமாமலை மருவி கைலையென்றாகி அத்தாழ்வரையே அப்பெயர் சூடிக்கொண்டது. கைமா மீது எப்போதும் அனல்முகில் அமர்ந்திருந்தது. அதற்கப்பாலிருந்த பன்னிரு அனல்மலைகளின் வெம்மையால் கோடைவெம்மைகொண்டிருந்த அந்நிலத்தில் கதிர்விரியும் பகுதிகளுக்குரிய மரங்களும் செடிகளும் புட்களும் பூச்சிகளும் பிறந்துபெருகி ஒரு தனியுலகை அமைத்திருந்தன.</p>
+<p style="text-align:justify;">பச்சைப்பாசி படிந்த கருங்கற்பாளங்களை சுவரென்றும் கூரையென்றும் அமைத்துக் கட்டப்பட்ட தாழ்ந்த இல்லங்களின்மேல் பீர்க்கும் சுரையும் இலைவிரித்துப் படர்ந்தேறியிருந்தன. மூங்கில்வேலிக்குமேல் பூசணிக்கொடிகள் பூக்கள் விரிய நீர் உண்ட செழிப்புடன் பேரிலை விரித்து நின்றிருந்தன. அத்தனை இல்லங்களிலும் முகப்பில் மரத்திலோ மண்ணிலோ செய்யப்பட்ட எருதுச்சிலை வைக்கப்பட்டிருந்தது. சாய்ந்த பின்காலைவெயில் படிந்த சிறுமுற்றங்களில் மூங்கில்பாய்களில் கம்பும் தினையும் சாமையும் வரகும் காயப்போடப்பட்டிருக்க காகங்கள் சூழ்ந்தெழுந்து பறந்தன. கையில் இலைச்செண்டுகொண்ட நீண்ட கழியுடன் அமர்ந்திருந்த மூதன்னையர் பாடல்போலக் கூவி கோல்வீசி காகங்களைத் துரத்தும் அகவலோசைக்கு மரங்கொத்திகளும் அணில்களும் எழுப்பிய கொத்தொலிகளும் செதுக்கொலிகளும் தாளமாயின.</p>
+<p style="text-align:justify;">கிளைகளின் ஊடாக இறங்கி புற்பரப்பில் பதிந்து இளம்பச்சை வட்டங்களாக ஆன வெயில்பட்டைகளில் சிறுபூச்சிகளும் சருகுத்திவலைகளும் ஒளிகொண்டு மிதந்தன. அதன் ஒலிவடிவம் என எங்கோ குழலோசை ஒன்று சுழன்று சுழன்று காற்றில் கரைந்து மீண்டும் உருக்கொண்டது. பச்சையின் அழுத்தமாறுபாடுகளால் ஆன சோலைகள். தளிர்ப்பச்சையை வெட்டி அமைத்த சிறுபாத்திகளில் பசும்பயிரின் அலைகள். அவற்றின்மேல் நீராவியென எழுந்து அமைந்த சிறுபூச்சித்தொகையின் ஒளிர்வுகள். காலடிகள் படிந்த செம்மண் தரையில் முந்தைய மழையின் ஈரம் எஞ்சியிருந்தது. கொன்றைகளுக்குக் கீழே கால்குழித் தடங்களில் பொன்பொடி என மகரந்தம் உதிர்ந்து கிடந்தது.</p>
+<p style="text-align:justify;">அத்தனை இல்லங்களிலிருந்தும் சிறுவர்கள் இறங்கிவந்து இளையோனுடன் விளையாடலாயினர். அவர்களின் கூச்சல்கள் செவிதுளைக்க முகம் சுளித்த காளி “உண்பதெல்லாம் குரலென்றே வீணாகிறது…” என்றாள். “நான் குரலெழுப்புவதே இல்லை, அன்னையே” என்றான் கொம்பன். “நீ சற்று குரலெழுப்பி உடல்கரைத்தால் நன்று” என்று அவள் சொன்னாள். கொம்பன் அர்ஜுனனிடம் “நாம் இதை மன்றுக்குக் கொண்டுசென்று சேர்ப்போம். அடுமடையர்கள் இதைச் சுடுவார்கள். இஞ்சியும் மிளகும் மலையுப்புடன் சேர்த்துப்பூசி சுட்டால் பன்றியின் ஊன்நெய் உருகி அதிலிணைகையில் அமுதென்றிருக்கும்” என்றான். “செல்க, உண்பதற்கு அவனிடம்தான் கற்கவேண்டும்” என்றாள் காளி.</p>
+<p style="text-align:justify;">வெண்ணிறக் கல்லில் செதுக்கப்பட்ட எருதுச்சிலை எழுந்த அவர்களின் இல்லத்தை அடைந்ததும் காளன் “நீ மன்றுக்குச் செல்க, இளவரசே! நாங்கள் அங்கு வந்துவிடுகிறோம்” என்றான். அவன் இல்லத்திற்குமேல் தோகைசரிய மயில் ஒன்று அமர்ந்திருந்தது. காலடியோசை கேட்டு நீள்கழுத்து ஒளிமழுங்க அது திரும்பி நோக்கியது. தோகை தொங்கி அசைய சிறகோசையுடன் பறந்து அருகே நின்ற மகிழமரத்தின்மேல் சென்று அமர்ந்து கழுத்தைச் சொடுக்கி அகவியது. அவர்கள் பசுங்குடிலென ஒளிகொண்டிருந்த அந்த இல்லத்திற்குள் நுழைய உள்ளிருந்து கன்றுக்குட்டி ஒன்று வெளியே பாயந்தது. காளி உரக்க நகைத்து அதன் முதுகில் தட்டினாள்.</p>
+<p style="text-align:justify;">அவர்கள் இருவரும் இல்லத்திற்குள் செல்ல கொம்பன் அர்ஜுனனிடம் “அங்கே சென்றதுமே சண்டைபோடுவார்கள்” என்றான். “எப்படி தெரியும்?” என்று அர்ஜுனன் கேட்டான். “அவர்களில் யார் உயர்ந்தவர் என்பது இன்னும் முடிவாகவில்லை” என்ற கொம்பன் “நாம் செல்வோம். பன்றி உடல்வெம்மையை இழந்தபடியே செல்கிறது. சுவைகுன்றிவிடும்” என்றான். “ஆம், இது எனக்கு அன்னை அளித்த கொடை” என்றான் அர்ஜுனன். கொம்பன் ஐயத்துடன் நோக்கி “அப்படியா? நம்மிருவருக்கும் உரியது என்றல்லவா சொன்னார்?” என்றான். அர்ஜுனன் சிரித்துக்கொண்டு “ஆம், நான் மறந்துவிட்டேன்” என்றான்.</p>
+<p style="text-align:justify;">மன்றுமுற்றத்தில் மையமாக ஒரு பெரிய பீடம் இருந்தது. அதன் நடுவே செங்குத்தாக எழுந்த பெரிய சிவக்குறியை அர்ஜுனன் கண்டான். தீட்டப்பட்ட கரியகல்லில் சூழ்ந்திருந்த மரங்களின் பாவைகள் ஆடின. அதன்முன் இருந்த பலிபீடத்தில் காலையில் படைக்கப்பட்ட மலரும் பொரியும் இருந்தன. சிறுகுருவிகள் எழுந்தமைந்து பொரியை உண்டுகொண்டிருந்தன. மன்றில் மூன்று முதியவர்கள் சிறிய கல்பீடத்தில் அமர்ந்து சுருங்கிய விழிகளுடன் ஒருவரோடொருவர் பேசிக்கொண்டிருந்தனர். அவனைக் கண்டதும் திரும்பி நெற்றியில் கைவைத்து நோக்கினர். ஒருவரின் தாடை மெல்ல விழ வாய் சிறுதுளையெனத் தெரிந்தது. உள்ளே நாக்கு பதைத்தது.</p>
+<p style="text-align:justify;">அவர்கள் மூவருமே செஞ்சடையை மகுடமெனச் சுற்றிவைத்து நெற்றியில் மூவிழி வரைந்து உடலெங்கும் நீறுபூசியிருந்தனர். இடையில் புலித்தோல், கழுத்தில் கருவிழிமணிமாலை. ஒருவர் கையில் முப்பிரிவேல் இருந்தது. அர்ஜுனன் அவர்களை அணுகியதும் கை தலை மார்பு வயிறு கால்கள் நிலம்படிய விழுந்து வணங்கினான். அவர்களில் முதியவர் முப்பிரிவேலை நீட்டி அவன் தலையைத் தொட்டு “எழுக!” என்றார். அவன் எழுந்ததும் “அஸ்தினபுரியின் இளவரசருக்கு நல்லூழ் அமைக!” என்றார். அர்ஜுனன் மீண்டும் கைகூப்பினான்.</p>
+<p style="text-align:justify;">கொம்பன் அந்தப் பன்றியை கால்பிணைத்து தூக்கி முக்கால் நடுவே தலைகீழாகக் கட்டினான். “அடுமடையர்கள் எங்கே?” என்றான். “பொறு மைந்தா… பிறரும் வரட்டும்” என்றார் முதியவர். அர்ஜுனன் அந்த முழுவட்டத் தாழ்வரையைச் சூழ்ந்திருந்த நீலமலையடுக்குகளை நோக்கினான். அவற்றின் அடிவளைவில் இருந்து பசியகாடு எழுந்து வந்து அவ்வூரைச் சூழ்ந்திருந்தது. அங்கிருந்து குரங்குகளின் ஒலி கேட்டுக்கொண்டிருந்தது. காட்டின் மீது வெண்முகில்கள் சிதறி மெல்ல காற்றில் பிரிந்துகொண்டிருந்தன. முதியவர் “அமர்க!” என்று கையை காட்டினார்.</p>
+<p style="text-align:justify;">அர்ஜுனன் அவர்களின் காலடியில் அமர்ந்துகொண்டான். “என் பெயர் சடையன்” என்று முதல் முதியவர் சொன்னார். “நெடுந்தொலைவு வந்துள்ளாய். நீடுதவம்செய்து உடலுருகியிருக்கிறாய்…” இன்னொருவர் “என் பெயர் பேயன்” என்றார். “நீ உகந்த வழிகளினூடாகவே இங்கு வந்துள்ளாய் என உன் விழிநோக்கி அறிகிறேன்” என்றார். அர்ஜுனன் அவரை வணங்கி “அவ்வாறன்றி இங்கு வர இயலாதென்று அறிவேன், எந்தையே” என்றான். அவர் நகைத்து “ஆம்” என்றார். மூன்றாமவர் “என்னை எரியன் என அழைக்கிறார்கள். உன்னைக் கண்டதும் நான் மகிழ்ந்தேன், மைந்தா” என்றார். “அது எந்தையரிடமிருந்து நான் பெற்ற நல்லூழ்” என்றான் அர்ஜுனன்.</p>
+<p style="text-align:justify;">“சொல்க, நீ எங்களிடமிருந்து விழைவது என்ன?” என்றார் சடையன். பிற இருவரும் கண்களில் புன்னகையுடன் அவனை கூர்ந்து நோக்கினர். “நான் பாசுபதம் பெறுவதற்காக இங்கு வந்தேன்” என்றான் அர்ஜுனன். சடையன் நகைத்து “நன்று, அதைக்கொண்டு நீ செய்யப்போவது என்ன?” என்றார். அர்ஜுனன் என்ன சொல்வதென்றறியாமல் அவர்களை முன்னும்பின்னும் நோக்கினான். “மைந்தா, எந்த அறிதலும் படைக்கலமாகும். பாசுபதம் முழுமுதல் அறிதலென்பதனால் அதுவே நிகரில்லா கொலைக்கருவி. நீ வெல்ல விழைவது எது?” என்றார் பேயன்.</p>
+<p style="text-align:justify;">அர்ஜுனன் இடையில் கைவைத்து திகைத்த உள்ளத்துடன் நின்றான். பின்னர் “நிகரற்ற படைக்கலத்தால் வென்றடையப்படுவதென இங்குள்ளது என்ன? நிகரற்ற ஒன்றை நோக்கி அல்லவா அதை செலுத்தவேண்டும்?” என்றான். “ஆம், நீ வெல்லப்போவது எதை?” என்றார் எரியன். அர்ஜுனன் “இம்மண்ணில் எதையும் அல்ல” என்றான். சடையன் உரக்க நகைத்து “சொல்லெண்ணுக! மானுடர் எய்தற்கரிய பெரும்படைக்கலம் உன்னிடமிருக்கும். நீ காணும் கொலைப்போர்க்களங்களில் உன்னைவிட ஆற்றலுள்ளோர் உனக்கு எதிர்வருவர். உன் உற்றார் அவர்களின் படைக்கலம் முன் நிற்பர். உன் அரசும் குடியும் புகழும் உன் வில் ஒன்றையே சார்ந்திருக்கும். ஆனால் அனைத்தையும் வெல்லும் பெரும்படைக்கலத்தை நீ எடுக்க முடியாது” என்றார்.</p>
+<p style="text-align:justify;">“ஆம், எடுக்கமாட்டேன்” என்று அர்ஜுனன் சொன்னான். “சொல்க, உன் மைந்தர் சிரமறுந்து விழும் களத்திலும் அதை கைக்கொள்ளமாட்டாயா?” அர்ஜுனன் “இல்லை, அத்தனை பெரிய படைக்கலத்தை ஏந்தியவன் வான் தொட தலை எழுந்த விராடன். அவன் எளிய மானுடர்மேல் கருணையுடன் மட்டுமே இருந்தாகவேண்டும்” என்றான். “நன்று” என்றார் சடையன். “பாசுபதம் பெறும் தகுதிகொண்டவனே நீ, நன்று!” என்று பேயன் நகைத்தார். “தந்தையரே, பாசுபதம் பெற நான் செய்யவேண்டியதென்ன?” என்றான் அர்ஜுனன். “குனிந்து இம்மண்ணிலுள்ள ஒரு கூழாங்கல்லை எடு” என்றார் சடையன். அர்ஜுனன் குனிந்து ஒரு சிறுகல்லை எடுத்துக்கொண்டான். “இளையவனே, இதுவே பாசுபதம்” என்றார் சடையன்.</p>
+<div class="sharedaddy sd-like-enabled sd-sharing-enabled" id="jp-post-flair"><div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon-text sd-sharing"><h3 class="sd-title">Share this:</h3><div class="sd-content"><ul><li class="share-twitter"><a class="share-twitter sd-button share-icon" data-shared="sharing-twitter-4543" href="https://venmurasu.in/2017/01/07/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-80/?share=twitter" rel="nofollow noopener noreferrer" target="_blank" title="Click to share on Twitter"><span>Twitter</span></a></li><li class="share-facebook"><a class="share-facebook sd-button share-icon" data-shared="sharing-facebook-4543" href="https://venmurasu.in/2017/01/07/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-80/?share=facebook" rel="nofollow noopener noreferrer" target="_blank" title="Click to share on Facebook"><span>Facebook</span></a></li><li class="share-end"></li></ul></div></div></div><div class="sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded" data-name="like-post-frame-62179296-4543-5f12b2c1e374e" data-src="//widgets.wp.com/likes/index.html?ver=20190321#blog_id=62179296&amp;post_id=4543&amp;origin=venmurasu.wordpress.com&amp;obj_id=62179296-4543-5f12b2c1e374e&amp;domain=venmurasu.in" id="like-post-wrapper-62179296-4543-5f12b2c1e374e"><h3 class="sd-title">Like this:</h3><div class="likes-widget-placeholder post-likes-widget-placeholder" style="height: 55px;"><span class="button"><span>Like</span></span> <span class="loading">ஏற்றப்படுகின்றது...</span></div><span class="sd-text-color"></span><a class="sd-link-color"></a></div></div> </div><!-- .entry-content -->
+<footer class="entry-meta">
+				Posted in <a href="https://venmurasu.in/category/%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d/" rel="category tag">கிராதம்</a> <span class="on-date"> on <a href="https://venmurasu.in/2017/01/07/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-80/" rel="bookmark" title="12:00 முப"><time class="entry-date" datetime="2017-01-07T00:00:30+05:30">ஜனவரி 7, 2017</time></a></span><span class="by-author"> by <span class="author vcard"><a class="url fn n" href="https://venmurasu.in/author/mahasrinivasan/" rel="author" title="SS எழுதிய எல்லா இடுகைகளையும் பார்க்கவும்">SS</a></span></span>.
+				
+							</footer><!-- .entry-meta -->
+</article><!-- #post-# .#post-class-# -->
+<nav class="post-navigation" id="nav-below" role="navigation">
+<h1 class="screen-reader-text">Post navigation</h1>
+<div class="nav-previous"><a href="https://venmurasu.in/2017/01/06/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-79/" rel="prev"><span class="meta-nav">←</span> நூல் பன்னிரண்டு – கிராதம் – 79</a></div> <div class="nav-next"><a href="https://venmurasu.in/2017/01/08/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-81/" rel="next">நூல் பன்னிரண்டு – கிராதம் – 81 <span class="meta-nav">→</span></a></div>
+</nav><!-- #nav-below -->
+<div class="comments-area" id="comments">
+</div><!-- #comments .comments-area -->
+</div><!-- #content .site-content -->
+</div><!-- #primary .content-area -->
+<div class="sidebar-container" id="secondary" role="complementary">
+<div class="widget-area">
+<aside class="widget widget_recent_entries" id="recent-posts-2"> <h3 class="widget-title">சமீபத்தைய பதிவுகள்</h3> <ul>
+<li>
+<a href="https://venmurasu.in/2020/07/16/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0%e0%af%81%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%af%e0%ae%be%e0%ae%b1%e0%af%81-%e0%ae%ae%e0%af%81%e0%ae%a4%e0%ae%b2%e0%ae%be-16/">நூல் இருபத்தியாறு – முதலாவிண் – 16</a>
+</li>
+<li>
+<a href="https://venmurasu.in/2020/07/15/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0%e0%af%81%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%af%e0%ae%be%e0%ae%b1%e0%af%81-%e0%ae%ae%e0%af%81%e0%ae%a4%e0%ae%b2%e0%ae%be-15/">நூல் இருபத்தியாறு – முதலாவிண் – 15</a>
+</li>
+<li>
+<a href="https://venmurasu.in/2020/07/14/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0%e0%af%81%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%af%e0%ae%be%e0%ae%b1%e0%af%81-%e0%ae%ae%e0%af%81%e0%ae%a4%e0%ae%b2%e0%ae%be-14/">நூல் இருபத்தியாறு – முதலாவிண் – 14</a>
+</li>
+<li>
+<a href="https://venmurasu.in/2020/07/13/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0%e0%af%81%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%af%e0%ae%be%e0%ae%b1%e0%af%81-%e0%ae%ae%e0%af%81%e0%ae%a4%e0%ae%b2%e0%ae%be-13/">நூல் இருபத்தியாறு – முதலாவிண் – 13</a>
+</li>
+<li>
+<a href="https://venmurasu.in/2020/07/12/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0%e0%af%81%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%af%e0%ae%be%e0%ae%b1%e0%af%81-%e0%ae%ae%e0%af%81%e0%ae%a4%e0%ae%b2%e0%ae%be-12/">நூல் இருபத்தியாறு – முதலாவிண் – 12</a>
+</li>
+<li>
+<a href="https://venmurasu.in/2020/07/11/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0%e0%af%81%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%af%e0%ae%be%e0%ae%b1%e0%af%81-%e0%ae%ae%e0%af%81%e0%ae%a4%e0%ae%b2%e0%ae%be-11/">நூல் இருபத்தியாறு – முதலாவிண் – 11</a>
+</li>
+<li>
+<a href="https://venmurasu.in/2020/07/10/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0%e0%af%81%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%af%e0%ae%be%e0%ae%b1%e0%af%81-%e0%ae%ae%e0%af%81%e0%ae%a4%e0%ae%b2%e0%ae%be-10/">நூல் இருபத்தியாறு – முதலாவிண் – 10</a>
+</li>
+<li>
+<a href="https://venmurasu.in/2020/07/09/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0%e0%af%81%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%af%e0%ae%be%e0%ae%b1%e0%af%81-%e0%ae%ae%e0%af%81%e0%ae%a4%e0%ae%b2%e0%ae%be-9/">நூல் இருபத்தியாறு – முதலாவிண் – 9</a>
+</li>
+<li>
+<a href="https://venmurasu.in/2020/07/08/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0%e0%af%81%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%af%e0%ae%be%e0%ae%b1%e0%af%81-%e0%ae%ae%e0%af%81%e0%ae%a4%e0%ae%b2%e0%ae%be-8/">நூல் இருபத்தியாறு – முதலாவிண் – 8</a>
+</li>
+<li>
+<a href="https://venmurasu.in/2020/07/07/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%87%e0%ae%b0%e0%af%81%e0%ae%aa%e0%ae%a4%e0%af%8d%e0%ae%a4%e0%ae%bf%e0%ae%af%e0%ae%be%e0%ae%b1%e0%af%81-%e0%ae%ae%e0%af%81%e0%ae%a4%e0%ae%b2%e0%ae%be-7/">நூல் இருபத்தியாறு – முதலாவிண் – 7</a>
+</li>
+</ul>
+</aside><aside class="widget widget_calendar" id="calendar-2"><h3 class="widget-title">தேதி வாரியாக படிக்க </h3><div class="calendar_wrap" id="calendar_wrap"><table class="wp-calendar-table" id="wp-calendar">
+<caption>ஜனவரி 2017</caption>
+<thead>
+<tr>
+<th scope="col" title="திங்கள்">தி</th>
+<th scope="col" title="செவ்வாய்">செ</th>
+<th scope="col" title="புதன்">பு</th>
+<th scope="col" title="வியாழன்">விய</th>
+<th scope="col" title="வெள்ளி">வெ</th>
+<th scope="col" title="சனி">ச</th>
+<th scope="col" title="ஞாயிறு">ஞா</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="pad" colspan="6"> </td><td><a aria-label="பதிவுகள் January 1, 2017 பதிப்பிக்கப்பட்டது" href="https://venmurasu.in/2017/01/01/">1</a></td>
+</tr>
+<tr>
+<td><a aria-label="பதிவுகள் January 2, 2017 பதிப்பிக்கப்பட்டது" href="https://venmurasu.in/2017/01/02/">2</a></td><td><a aria-label="பதிவுகள் January 3, 2017 பதிப்பிக்கப்பட்டது" href="https://venmurasu.in/2017/01/03/">3</a></td><td><a aria-label="பதிவுகள் January 4, 2017 பதிப்பிக்கப்பட்டது" href="https://venmurasu.in/2017/01/04/">4</a></td><td><a aria-label="பதிவுகள் January 5, 2017 பதிப்பிக்கப்பட்டது" href="https://venmurasu.in/2017/01/05/">5</a></td><td><a aria-label="பதிவுகள் January 6, 2017 பதிப்பிக்கப்பட்டது" href="https://venmurasu.in/2017/01/06/">6</a></td><td><a aria-label="பதிவுகள் January 7, 2017 பதிப்பிக்கப்பட்டது" href="https://venmurasu.in/2017/01/07/">7</a></td><td><a aria-label="பதிவுகள் January 8, 2017 பதிப்பிக்கப்பட்டது" href="https://venmurasu.in/2017/01/08/">8</a></td>
+</tr>
+<tr>
+<td><a aria-label="பதிவுகள் January 9, 2017 பதிப்பிக்கப்பட்டது" href="https://venmurasu.in/2017/01/09/">9</a></td><td><a aria-label="பதிவுகள் January 10, 2017 பதிப்பிக்கப்பட்டது" href="https://venmurasu.in/2017/01/10/">10</a></td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td>
+</tr>
+<tr>
+<td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td>
+</tr>
+<tr>
+<td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td><td>29</td>
+</tr>
+<tr>
+<td>30</td><td>31</td>
+<td class="pad" colspan="5"> </td>
+</tr>
+</tbody>
+</table><nav aria-label="Previous and next months" class="wp-calendar-nav">
+<span class="wp-calendar-nav-prev"><a href="https://venmurasu.in/2016/12/">« டிசம்பர்</a></span>
+<span class="pad"> </span>
+<span class="wp-calendar-nav-next"><a href="https://venmurasu.in/2017/02/">பிப் »</a></span>
+</nav></div></aside><aside class="widget widget_blog_subscription jetpack_subscription_widget" id="blog_subscription-2"><h3 class="widget-title"><label for="subscribe-field">மின்னஞ்சல் வழி தொடர</label></h3>
+<form accept-charset="utf-8" action="https://subscribe.wordpress.com" id="" method="post">
+<p>உங்கள் மின்னஞ்சல் இங்கே கொடுத்து அதன் வழி பதிவுகளைப் பெறவும்.</p>
+<p id="subscribe-email">
+<input id="" name="email" placeholder="Enter your email address" style="width: 95%; padding: 1px 10px" type="text" value=""/> </p>
+<p id="subscribe-submit">
+<input name="action" type="hidden" value="subscribe"/>
+<input name="blog_id" type="hidden" value="62179296"/>
+<input name="source" type="hidden" value="https://venmurasu.in/2017/01/07/%E0%AE%A8%E0%AF%82%E0%AE%B2%E0%AF%8D-%E0%AE%AA%E0%AE%A9%E0%AF%8D%E0%AE%A9%E0%AE%BF%E0%AE%B0%E0%AE%A3%E0%AF%8D%E0%AE%9F%E0%AF%81-%E0%AE%95%E0%AE%BF%E0%AE%B0%E0%AE%BE%E0%AE%A4%E0%AE%AE%E0%AF%8D-80/"/>
+<input name="sub-type" type="hidden" value="widget"/>
+<input name="redirect_fragment" type="hidden" value="blog_subscription-2"/>
+<input id="_wpnonce" name="_wpnonce" type="hidden" value="388811cd64"/> <button type="submit">
+	                    பின் தொடர                    </button>
+</p>
+</form>
+</aside> </div><!-- .widget-area -->
+</div><!-- #secondary .sidebar-container -->
+</div><!-- #main .site-main -->
+<footer class="site-footer" id="colophon" role="contentinfo">
+<div class="site-info-container">
+<div class="site-info">
+<a href="https://wordpress.com/?ref=footer_blog" rel="nofollow">வேர்ட்பிரஸ்.காம் இல் வலைப்பதிவு.</a>
+</div><!-- .site-info -->
+</div><!-- .site-info-container -->
+</footer><!-- #colophon .site-footer -->
+</div><!-- #page -->
+<!-- -->
+<div style="display:none">
+</div>
+<script type="text/javascript">
+		window.WPCOM_sharing_counts = {"https:\/\/venmurasu.in\/2017\/01\/07\/%e0%ae%a8%e0%af%82%e0%ae%b2%e0%af%8d-%e0%ae%aa%e0%ae%a9%e0%af%8d%e0%ae%a9%e0%ae%bf%e0%ae%b0%e0%ae%a3%e0%af%8d%e0%ae%9f%e0%af%81-%e0%ae%95%e0%ae%bf%e0%ae%b0%e0%ae%be%e0%ae%a4%e0%ae%ae%e0%af%8d-80\/":4543};
+	</script>
+<script>
+var actionbardata = {"siteID":"62179296","siteName":"venmurasu.in","siteURL":"https:\/\/venmurasu.in","icon":"<img alt='' src='https:\/\/s2.wp.com\/i\/logo\/wpcom-gray-white.png' class='avatar avatar-50' height='50' width='50' \/>","canManageOptions":"","canCustomizeSite":"","isFollowing":"","themeSlug":"pub\/suits","signupURL":"https:\/\/wordpress.com\/start\/","loginURL":"https:\/\/wordpress.com\/log-in?redirect_to=https%3A%2F%2Fvenmurasu.in%2F2017%2F01%2F07%2F%E0%AE%A8%E0%AF%82%E0%AE%B2%E0%AF%8D-%E0%AE%AA%E0%AE%A9%E0%AF%8D%E0%AE%A9%E0%AE%BF%E0%AE%B0%E0%AE%A3%E0%AF%8D%E0%AE%9F%E0%AF%81-%E0%AE%95%E0%AE%BF%E0%AE%B0%E0%AE%BE%E0%AE%A4%E0%AE%AE%E0%AF%8D-80%2F&signup_flow=account&domain=venmurasu.in","themeURL":"","xhrURL":"https:\/\/venmurasu.in\/wp-admin\/admin-ajax.php","nonce":"1e65d977d8","isSingular":"1","isFolded":"","isLoggedIn":"","isMobile":"","subscribeNonce":"<input type=\"hidden\" id=\"_wpnonce\" name=\"_wpnonce\" value=\"388811cd64\" \/>","referer":"https:\/\/venmurasu.in\/2017\/01\/07\/%E0%AE%A8%E0%AF%82%E0%AE%B2%E0%AF%8D-%E0%AE%AA%E0%AE%A9%E0%AF%8D%E0%AE%A9%E0%AE%BF%E0%AE%B0%E0%AE%A3%E0%AF%8D%E0%AE%9F%E0%AF%81-%E0%AE%95%E0%AE%BF%E0%AE%B0%E0%AE%BE%E0%AE%A4%E0%AE%AE%E0%AF%8D-80\/","canFollow":"1","feedID":"61446330","statusMessage":"","customizeLink":"https:\/\/venmurasu.wordpress.com\/wp-admin\/customize.php?url=https%3A%2F%2Fvenmurasu.wordpress.com%2F2017%2F01%2F07%2F%25E0%25AE%25A8%25E0%25AF%2582%25E0%25AE%25B2%25E0%25AF%258D-%25E0%25AE%25AA%25E0%25AE%25A9%25E0%25AF%258D%25E0%25AE%25A9%25E0%25AE%25BF%25E0%25AE%25B0%25E0%25AE%25A3%25E0%25AF%258D%25E0%25AE%259F%25E0%25AF%2581-%25E0%25AE%2595%25E0%25AE%25BF%25E0%25AE%25B0%25E0%25AE%25BE%25E0%25AE%25A4%25E0%25AE%25AE%25E0%25AF%258D-80%2F","postID":"4543","shortlink":"https:\/\/wp.me\/p4cTFS-1bh","canEditPost":"","editLink":"https:\/\/wordpress.com\/post\/venmurasu.in\/4543","statsLink":"https:\/\/wordpress.com\/stats\/post\/4543\/venmurasu.in","i18n":{"view":"View site","follow":"Follow","following":"Following","edit":"\u0ba4\u0bca\u0b95\u0bc1","login":"\u0b89\u0bb3\u0bcd\u0ba8\u0bc1\u0bb3\u0bc8","signup":"\u0baa\u0ba4\u0bbf\u0bb5\u0bc1 \u0b9a\u0bc6\u0baf\u0bcd\u0b95","customize":"\u0ba4\u0ba9\u0bbf\u0baa\u0bcd\u0baa\u0baf\u0ba9\u0bbe\u0b95\u0bcd\u0b95\u0bc1","report":"Report this content","themeInfo":"Get theme: Suits","shortlink":"Copy shortlink","copied":"Copied","followedText":"New posts from this site will now appear in your <a href=\"https:\/\/wordpress.com\/read\">Reader<\/a>","foldBar":"Collapse this bar","unfoldBar":"Expand this bar","editSubs":"Manage subscriptions","viewReader":"View site in Reader","viewReadPost":"View post in Reader","subscribe":"Sign me up","enterEmail":"Enter your email address","followers":"Join 1,450 other followers","alreadyUser":"Already have a WordPress.com account? <a href=\"https:\/\/wordpress.com\/log-in?redirect_to=https%3A%2F%2Fvenmurasu.in%2F2017%2F01%2F07%2F%E0%AE%A8%E0%AF%82%E0%AE%B2%E0%AF%8D-%E0%AE%AA%E0%AE%A9%E0%AF%8D%E0%AE%A9%E0%AE%BF%E0%AE%B0%E0%AE%A3%E0%AF%8D%E0%AE%9F%E0%AF%81-%E0%AE%95%E0%AE%BF%E0%AE%B0%E0%AE%BE%E0%AE%A4%E0%AE%AE%E0%AF%8D-80%2F&signup_flow=account&domain=venmurasu.in\">Log in now.<\/a>","stats":"\u0baa\u0bc1\u0bb3\u0bcd\u0bb3\u0bbf\u0bb5\u0bbf\u0bb5\u0bb0\u0b99\u0bcd\u0b95\u0bb3\u0bcd"}};
+</script>
+<script>
+var sharing_js_options = {"lang":"en","counts":"1","is_stats_active":"1"};
+</script>
+<script src="https://s1.wp.com/_static/??-eJyVUNtuwjAM/aEFC4mK8YD2LaE1rUPjZrZTLl9POm1IXNSJJ1v2udlwTK4e2JANgkKDI9WYTougH3C/SoNaRFXf4ott+M4o59+yIB4Jj//CAlry9cEJKl2eVGN2qc8tsUJPB1QopIyd56ZHeQRbhyUcpLwDzWQ6me0z10YD64yybyKx23mB6NVQSueGEUWoKXK32ZsKJuWsWdufYBPp1s2gp9e7fe9JQDsvxO1fLaSvuF1W69Vm/VlVm3AF53SudA==" type="text/javascript"></script>
+<script type="text/javascript">
+var windowOpen;
+			jQuery( document.body ).on( 'click', 'a.share-twitter', function() {
+				// If there's another sharing window open, close it.
+				if ( 'undefined' !== typeof windowOpen ) {
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcomtwitter', 'menubar=1,resizable=1,width=600,height=350' );
+				return false;
+			});
+var windowOpen;
+			jQuery( document.body ).on( 'click', 'a.share-facebook', function() {
+				// If there's another sharing window open, close it.
+				if ( 'undefined' !== typeof windowOpen ) {
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcomfacebook', 'menubar=1,resizable=1,width=600,height=400' );
+				return false;
+			});
+</script>
+<script type="text/javascript">
+// <![CDATA[
+(function() {
+try{
+  if ( window.external &&'msIsSiteMode' in window.external) {
+    if (window.external.msIsSiteMode()) {
+      var jl = document.createElement('script');
+      jl.type='text/javascript';
+      jl.async=true;
+      jl.src='/wp-content/plugins/ie-sitemode/custom-jumplist.php';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(jl, s);
+    }
+  }
+}catch(e){}
+})();
+// ]]>
+</script> <iframe id="likes-master" name="likes-master" scrolling="no" src="https://widgets.wp.com/likes/master.html?ver=20190321#ver=20190321&amp;lang=ta" style="display:none;"></iframe>
+<div id="likes-other-gravatars"><div class="likes-text"><span>%d</span> bloggers like this:</div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
+<script async="" defer="" src="//stats.wp.com/w.js?61" type="text/javascript"></script>
+<script type="text/javascript">
+_tkq = window._tkq || [];
+_stq = window._stq || [];
+_tkq.push(['storeContext', {'blog_id':'62179296','blog_tz':'5','user_lang':'ta','blog_lang':'ta','user_id':'0'}]);
+_stq.push(['view', {'blog':'62179296','v':'wpcom','tz':'5','user_id':'0','post':'4543','subd':'venmurasu'}]);
+_stq.push(['extra', {'crypt':'UE40eW5QN0p8M2Y/RE1TaVhzUzFMbjdWNHpwZGhTayxPSUFCMGNrd29+Smw0TDhnZmRTK0hlRi9QSGh6bi9GXVhBJWIlZlR5U1JMLU8/MkNtblkvY1dDSHZyZm0zMFI1fkYvUj0wTjBYX2hsV1kuaERSaiZWPSUsdDF1dGJrWFQ5amIlQlswWldZTmM5VEZHfFBJZVlDMkd5LFErSnlMSkgvNFBsazRyV3VlTjl4R3xOUiYmalk2eFZUaF9IZFI9dUk/aS1BZmNSRzJ1M0VKKy9wWHx4WSsxSGZ8bG9TY2MsUUkxZVIrZVZUP2lIL1tLR2dQaVtfdmY9XSZvK3NuYTBSP3NsKyZRLkNGWGNJR3RoaWRdfllbWFEmJWVLfC5fWUowd28xYjh4LWpX'}]);
+_stq.push([ 'clickTrackerInit', '62179296', '4543' ]);
+	</script>
+<noscript><img alt="" src="https://pixel.wp.com/b.gif?v=noscript" style="height:0px;width:0px;overflow:hidden"/></noscript>
+<script>
+if ( 'object' === typeof wpcom_mobile_user_agent_info ) {
+
+	wpcom_mobile_user_agent_info.init();
+	var mobileStatsQueryString = "";
+	
+	if( false !== wpcom_mobile_user_agent_info.matchedPlatformName )
+		mobileStatsQueryString += "&x_" + 'mobile_platforms' + '=' + wpcom_mobile_user_agent_info.matchedPlatformName;
+	
+	if( false !== wpcom_mobile_user_agent_info.matchedUserAgentName )
+		mobileStatsQueryString += "&x_" + 'mobile_devices' + '=' + wpcom_mobile_user_agent_info.matchedUserAgentName;
+	
+	if( wpcom_mobile_user_agent_info.isIPad() )
+		mobileStatsQueryString += "&x_" + 'ipad_views' + '=' + 'views';
+
+	if( "" != mobileStatsQueryString ) {
+		new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?v=wpcom-no-pv' + mobileStatsQueryString + '&baba=' + Math.random();
+	}
+	
+}
+</script>
+</body>
+</html>
