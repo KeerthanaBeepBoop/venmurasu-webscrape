@@ -5,7 +5,7 @@ import time
 from bs4 import BeautifulSoup
 import string
 import os, glob
-
+import re
 #Opening a file 
 # with open('newfile.txt', 'r') as f:
 #     data = f.read()
@@ -18,7 +18,9 @@ for root, dirs, files in os.walk('venmurasu/'):
     for file in files:
         # print(file)
         soup = BeautifulSoup(open(folderPath+file,encoding="utf-8"), "html.parser")
-        one_a_tag = soup.findAll('p', style="text-align:justify;")
+        # one_a_tag = soup.findAll('p', style="text-align:justify;")
+        # one_a_tag = soup.findAll('p', style=re.compile(r'text-align:justify;'))
+        one_a_tag = soup.findAll('p')
         plainText = ""
         for i in one_a_tag:
             plainText=plainText+i.text
