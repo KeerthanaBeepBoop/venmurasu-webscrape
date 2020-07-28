@@ -2,6 +2,7 @@ from tamil import utf8
 import csv
 import os,glob
 import string
+import re
 
 folder_path = 'venmurasu-text/'
 for root, dirs, files in os.walk(folder_path):
@@ -9,7 +10,8 @@ for root, dirs, files in os.walk(folder_path):
         with open(r"venmurasu-text/"+file, "r", encoding="utf-8") as file_, open(r"csv/"+file+".csv", "w", encoding="utf-8") as csvfile:
             data = file_.read()
             writer = csv.writer(csvfile, delimiter=',')
-            words = data.replace("‘","").replace("’","").replace('“',"").replace('”',"").replace("...",",").replace("…",",").split()
+            words = re.split('',data.replace("‘","").replace("’","").replace('“',"").replace('”',"").replace("...",",").replace("…",","))
+            # words = data.replace("‘","").replace("’","").replace('“',"").replace('”',"").replace("...",",").replace("…",",").split()
             table = data.maketrans('', '', string.punctuation)
             stripped = [w.translate(table) for w in words]
             writer.writerow(["Text"])
