@@ -8,7 +8,7 @@ import csv
 from tamil import utf8 
 import re
 
-def fun(e):   
+def fun(e):
     return len(utf8.get_letters(e))
       
 
