@@ -75,8 +75,14 @@ WSGI_APPLICATION = 'venmurasu.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'djongo',
+        "CLIENT": {
+           "name": "venmurasuDB",
+           "host": "mongodb+srv://keerthana:keerthana@cluster0.2jruk.mongodb.net/venmurasuDB?retryWrites=true&w=majority",
+           "username": "keerthana",
+           "password": "keerthana",
+           "authMechanism": "SCRAM-SHA-1",
+        }, 
     }
 }
 
